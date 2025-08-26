@@ -43,13 +43,6 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Configure EAS
-        run: |
-          export EXPO_NONINTERACTIVE=1
-          eas build:configure
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
       - name: Build Android AAB
         run: |
           eas build --platform android --profile production --non-interactive
@@ -114,13 +107,6 @@ jobs:
         run: |
           mkdir -p ~/.expo
           echo '{"sessionSecret":"","accessToken":"${{ secrets.EXPO_TOKEN }}","authType":"access-token"}' > ~/.expo/state.json
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Configure EAS
-        run: |
-          export EXPO_NONINTERACTIVE=1
-          eas build:configure
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
