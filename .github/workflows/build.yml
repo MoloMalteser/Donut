@@ -45,7 +45,8 @@ jobs:
 
       - name: Configure EAS
         run: |
-          eas build:configure --non-interactive
+          export EXPO_NONINTERACTIVE=1
+          eas build:configure
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
@@ -118,7 +119,8 @@ jobs:
 
       - name: Configure EAS
         run: |
-          eas build:configure --non-interactive
+          export EXPO_NONINTERACTIVE=1
+          eas build:configure
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
