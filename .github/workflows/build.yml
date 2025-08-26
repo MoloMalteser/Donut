@@ -11,13 +11,11 @@ on:
 
 jobs:
   build-android:
-    name: Build Android AAB & APK
+    name: Build Android APK
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./Donut
-    env:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,46 +30,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Setup Expo CLI
-        run: npm install -g @expo/cli
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Login to Expo
+      - name: Build APK
         run: |
-          mkdir -p ~/.expo
-          echo '{"sessionSecret":"","accessToken":"${{ secrets.EXPO_TOKEN }}","authType":"access-token"}' > ~/.expo/state.json
-
-      - name: Build Android AAB
-        run: |
-          EXPO_TOKEN=${{ secrets.EXPO_TOKEN }} eas build --platform android --profile production --non-interactive
-
-      - name: Build Android APK
-        run: |
-          EXPO_TOKEN=${{ secrets.EXPO_TOKEN }} eas build --platform android --profile preview --non-interactive
-
-      - name: Download AAB
-        run: |
-          # Download the built AAB
-          AAB_URL=$(eas build:list --platform android --limit 1 --json | jq -r '.[0].artifacts.buildUrl')
-          curl -L -o donut-app.aab "$AAB_URL"
-          echo "AAB_URL=$AAB_URL" >> $GITHUB_ENV
-
-      - name: Download APK
-        run: |
-          # Download the built APK
-          APK_URL=$(eas build:list --platform android --limit 1 --json | jq -r '.[0].artifacts.buildUrl')
-          curl -L -o donut-app.apk "$APK_URL"
-          echo "APK_URL=$APK_URL" >> $GITHUB_ENV
+          # Generate the APK using React Native CLI
+          npx react-native run-android --variant=release --no-packager
+          
+          # Copy the generated APK
+          cp android/app/build/outputs/apk/release/app-release.apk donut-app.apk
 
       - name: Upload Android Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: android-builds
-          path: |
-            donut-app.aab
-            donut-app.apk
+          path: donut-app.apk
 
   build-ios:
     name: Build iOS App
@@ -79,8 +59,6 @@ jobs:
     defaults:
       run:
         working-directory: ./Donut
-    env:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -95,28 +73,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Setup Expo CLI
-        run: npm install -g @expo/cli
-
-      - name: Install EAS CLI
-        run: |
-          npm install -g eas-cli
-
-      - name: Login to Expo
-        run: |
-          mkdir -p ~/.expo
-          echo '{"sessionSecret":"","accessToken":"${{ secrets.EXPO_TOKEN }}","authType":"access-token"}' > ~/.expo/state.json
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.0'
 
       - name: Build iOS App
         run: |
-          EXPO_TOKEN=${{ secrets.EXPO_TOKEN }} eas build --platform ios --profile production --non-interactive
-
-      - name: Download iOS App
-        run: |
-          # Download the built iOS app
-          IOS_URL=$(eas build:list --platform ios --limit 1 --json | jq -r '.[0].artifacts.buildUrl')
-          curl -L -o donut-ios.zip "$IOS_URL"
-          echo "IOS_URL=$IOS_URL" >> $GITHUB_ENV
+          # Build iOS app using React Native CLI
+          npx react-native run-ios --configuration Release --no-packager
+          
+          # Create a zip of the iOS project for manual building
+          zip -r donut-ios.zip ios/
 
       - name: Upload iOS Artifacts
         uses: actions/upload-artifact@v4
@@ -163,9 +131,8 @@ jobs:
             - Better visual design and animations
             
             ### 📦 Downloads
-            - **Android AAB**: Production build for Google Play Store
             - **Android APK**: Direct installation APK
-            - **iOS App**: Xcode project files
+            - **iOS App**: Xcode project files for manual building
             
             ### 🚀 Features
             - Create text and photo posts
@@ -175,13 +142,13 @@ jobs:
             - Content moderation
             
             ### 🔧 Technical Details
-            - Built with React Native + Expo
+            - Built with React Native
             - TypeScript support
             - Cross-platform compatibility
             - Modern UI components
             
             ### 📋 Installation
-            1. **Android**: Install the APK directly or use AAB for Play Store
+            1. **Android**: Install the APK directly
             2. **iOS**: Use the Xcode project files to build and deploy
             
             ### 🐛 Bug Reports
@@ -191,16 +158,6 @@ jobs:
             *Built with ❤️ using GitHub Actions*
           draft: false
           prerelease: false
-
-      - name: Upload Android AAB
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./android-builds/donut-app.aab
-          asset_name: donut-app-v${{ github.run_number }}.aab
-          asset_content_type: application/octet-stream
 
       - name: Upload Android APK
         uses: actions/upload-release-asset@v1
