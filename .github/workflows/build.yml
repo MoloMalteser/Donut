@@ -45,7 +45,9 @@ jobs:
 
       - name: Configure EAS
         run: |
-          eas build:configure
+          eas build:configure --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build Android AAB
         run: |
@@ -116,7 +118,9 @@ jobs:
 
       - name: Configure EAS
         run: |
-          eas build:configure
+          eas build:configure --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build iOS App
         run: |
