@@ -1,0 +1,155 @@
+name: Build Donut App
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Expo CLI
+        run: npm install -g @expo/cli
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Login to Expo
+        run: |
+          echo ${{ secrets.EXPO_TOKEN }} | eas login
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Configure EAS
+        run: |
+          eas build:configure
+
+      - name: Build Android APK
+        run: |
+          eas build --platform android --profile preview --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Download APK
+        run: |
+          # Download the built APK
+          eas build:list --platform android --limit 1 --json | jq -r '.[0].artifacts.buildUrl' | xargs -I {} curl -L -o donut-app.apk {}
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: donut-android-apk
+          path: donut-app.apk
+
+  build-ios:
+    name: Build iOS App
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Expo CLI
+        run: npm install -g @expo/cli
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Login to Expo
+        run: |
+          echo ${{ secrets.EXPO_TOKEN }} | eas login
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Configure EAS
+        run: |
+          eas build:configure
+
+      - name: Build iOS App
+        run: |
+          eas build --platform ios --profile preview --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Download iOS App
+        run: |
+          # Download the built iOS app
+          eas build:list --platform ios --limit 1 --json | jq -r '.[0].artifacts.buildUrl' | xargs -I {} curl -L -o donut-ios.zip {}
+
+      - name: Upload iOS App Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: donut-ios-app
+          path: donut-ios.zip
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Run linting
+        run: |
+          npm install -g eslint
+          npx eslint src/ --ext .ts,.tsx || true
+
+  security:
+    name: Security Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security audit
+        run: npm audit --audit-level moderate
+
+      - name: Check for known vulnerabilities
+        run: |
+          npm audit --audit-level moderate || true
+          echo "Security audit completed"
