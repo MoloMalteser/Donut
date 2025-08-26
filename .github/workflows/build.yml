@@ -16,6 +16,8 @@ jobs:
     defaults:
       run:
         working-directory: ./Donut
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,20 +42,14 @@ jobs:
         run: |
           mkdir -p ~/.expo
           echo '{"sessionSecret":"","accessToken":"${{ secrets.EXPO_TOKEN }}","authType":"access-token"}' > ~/.expo/state.json
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build Android AAB
         run: |
-          eas build --platform android --profile production --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_TOKEN=${{ secrets.EXPO_TOKEN }} eas build --platform android --profile production --non-interactive
 
       - name: Build Android APK
         run: |
-          eas build --platform android --profile preview --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_TOKEN=${{ secrets.EXPO_TOKEN }} eas build --platform android --profile preview --non-interactive
 
       - name: Download AAB
         run: |
@@ -83,6 +79,8 @@ jobs:
     defaults:
       run:
         working-directory: ./Donut
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -101,20 +99,17 @@ jobs:
         run: npm install -g @expo/cli
 
       - name: Install EAS CLI
-        run: npm install -g eas-cli
+        run: |
+          npm install -g eas-cli
 
       - name: Login to Expo
         run: |
           mkdir -p ~/.expo
           echo '{"sessionSecret":"","accessToken":"${{ secrets.EXPO_TOKEN }}","authType":"access-token"}' > ~/.expo/state.json
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build iOS App
         run: |
-          eas build --platform ios --profile production --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_TOKEN=${{ secrets.EXPO_TOKEN }} eas build --platform ios --profile production --non-interactive
 
       - name: Download iOS App
         run: |
