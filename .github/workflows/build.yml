@@ -38,7 +38,8 @@ jobs:
 
       - name: Login to Expo
         run: |
-          echo ${{ secrets.EXPO_TOKEN }} | eas login
+          mkdir -p ~/.expo
+          echo '{"sessionSecret":"","accessToken":"${{ secrets.EXPO_TOKEN }}","authType":"access-token"}' > ~/.expo/state.json
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
@@ -108,7 +109,8 @@ jobs:
 
       - name: Login to Expo
         run: |
-          echo ${{ secrets.EXPO_TOKEN }} | eas login
+          mkdir -p ~/.expo
+          echo '{"sessionSecret":"","accessToken":"${{ secrets.EXPO_TOKEN }}","authType":"access-token"}' > ~/.expo/state.json
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
