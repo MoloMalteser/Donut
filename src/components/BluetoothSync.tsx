@@ -7,10 +7,14 @@ import {
   FlatList,
   Alert,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import BluetoothService from '../services/BluetoothService';
 import { BluetoothDevice, SyncResult } from '../types';
+
+const { width } = Dimensions.get('window');
 
 const BluetoothSync: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
@@ -87,109 +91,170 @@ const BluetoothSync: React.FC = () => {
 
   const renderDevice = ({ item }: { item: BluetoothDevice }) => (
     <TouchableOpacity
-      style={[styles.deviceItem, item.isConnected && styles.connectedDevice]}
+      style={styles.deviceItem}
       onPress={() => handleConnectToDevice(item)}
       disabled={isConnecting}
+      activeOpacity={0.8}
     >
-      <View style={styles.deviceInfo}>
-        <Ionicons 
-          name={item.isConnected ? "bluetooth" : "bluetooth-outline"} 
-          size={24} 
-          color={item.isConnected ? "#4CAF50" : "#666"} 
-        />
-        <View style={styles.deviceDetails}>
-          <Text style={styles.deviceName}>{item.name}</Text>
-          <Text style={styles.deviceRssi}>Signal: {item.rssi} dBm</Text>
+      <LinearGradient
+        colors={item.isConnected ? ['#4CAF50', '#66BB6A'] : ['#ffffff', '#f8f9fa']}
+        style={styles.deviceGradient}
+      >
+        <View style={styles.deviceInfo}>
+          <View style={styles.deviceIcon}>
+            <LinearGradient
+              colors={item.isConnected ? ['#4CAF50', '#66BB6A'] : ['#2196F3', '#42A5F5']}
+              style={styles.iconGradient}
+            >
+              <Ionicons 
+                name={item.isConnected ? "bluetooth" : "bluetooth-outline"} 
+                size={24} 
+                color="#ffffff" 
+              />
+            </LinearGradient>
+          </View>
+          <View style={styles.deviceDetails}>
+            <Text style={styles.deviceName}>{item.name}</Text>
+            <Text style={styles.deviceRssi}>Signal: {item.rssi} dBm</Text>
+          </View>
         </View>
-      </View>
-      
-      <View style={styles.deviceStatus}>
-        {item.isConnected ? (
-          <Text style={styles.connectedText}>Connected</Text>
-        ) : (
-          <TouchableOpacity
-            style={styles.connectButton}
-            onPress={() => handleConnectToDevice(item)}
-            disabled={isConnecting}
-          >
-            {isConnecting ? (
-              <ActivityIndicator size="small" color="#ffffff" />
-            ) : (
-              <Text style={styles.connectButtonText}>Connect</Text>
-            )}
-          </TouchableOpacity>
-        )}
-      </View>
+        
+        <View style={styles.deviceStatus}>
+          {item.isConnected ? (
+            <View style={styles.connectedBadge}>
+              <LinearGradient
+                colors={['#4CAF50', '#66BB6A']}
+                style={styles.connectedBadgeGradient}
+              >
+                <Text style={styles.connectedText}>Connected</Text>
+              </LinearGradient>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.connectButton}
+              onPress={() => handleConnectToDevice(item)}
+              disabled={isConnecting}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#2196F3', '#42A5F5']}
+                style={styles.connectButtonGradient}
+              >
+                {isConnecting ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <Text style={styles.connectButtonText}>Connect</Text>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+        </View>
+      </LinearGradient>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <LinearGradient
+        colors={['#4CAF50', '#66BB6A']}
+        style={styles.header}
+      >
         <Text style={styles.title}>🍩 Bluetooth Sync</Text>
         <Text style={styles.subtitle}>Discover nearby devices to share posts</Text>
-      </View>
+      </LinearGradient>
 
       {/* Scan Button */}
-      <TouchableOpacity
-        style={[styles.scanButton, isScanning && styles.scanningButton]}
-        onPress={handleStartScan}
-        disabled={isScanning}
-      >
-        {isScanning ? (
-          <View style={styles.scanningContent}>
-            <View style={styles.donutAnimation}>
-              <Text style={styles.donutEmoji}>🍩</Text>
-            </View>
-            <Text style={styles.scanningText}>Scanning...</Text>
-          </View>
-        ) : (
-          <>
-            <Ionicons name="bluetooth" size={24} color="#ffffff" />
-            <Text style={styles.scanButtonText}>Start Scan</Text>
-          </>
-        )}
-      </TouchableOpacity>
+      <View style={styles.scanButtonContainer}>
+        <TouchableOpacity
+          style={styles.scanButton}
+          onPress={handleStartScan}
+          disabled={isScanning}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={isScanning ? ['#FF9800', '#FFB74D'] : ['#4CAF50', '#66BB6A']}
+            style={styles.scanButtonGradient}
+          >
+            {isScanning ? (
+              <View style={styles.scanningContent}>
+                <View style={styles.donutAnimation}>
+                  <Text style={styles.donutEmoji}>🍩</Text>
+                </View>
+                <Text style={styles.scanningText}>Scanning...</Text>
+              </View>
+            ) : (
+              <>
+                <Ionicons name="bluetooth" size={24} color="#ffffff" />
+                <Text style={styles.scanButtonText}>Start Scan</Text>
+              </>
+            )}
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
 
       {/* Last Sync Result */}
       {lastSyncResult && (
-        <View style={[styles.syncResult, lastSyncResult.success ? styles.successResult : styles.errorResult]}>
-          <Ionicons 
-            name={lastSyncResult.success ? "checkmark-circle" : "close-circle"} 
-            size={20} 
-            color={lastSyncResult.success ? "#4CAF50" : "#f44336"} 
-          />
-          <Text style={styles.syncResultText}>
-            {lastSyncResult.success 
-              ? `Sync successful! Received ${lastSyncResult.postsReceived}, sent ${lastSyncResult.postsSent} posts`
-              : `Sync failed: ${lastSyncResult.error}`
-            }
-          </Text>
+        <View style={styles.syncResultContainer}>
+          <LinearGradient
+            colors={lastSyncResult.success ? ['#e8f5e8', '#c8e6c9'] : ['#ffebee', '#ffcdd2']}
+            style={styles.syncResultGradient}
+          >
+            <View style={styles.syncResultIcon}>
+              <LinearGradient
+                colors={lastSyncResult.success ? ['#4CAF50', '#66BB6A'] : ['#f44336', '#ef5350']}
+                style={styles.syncIconGradient}
+              >
+                <Ionicons 
+                  name={lastSyncResult.success ? "checkmark-circle" : "close-circle"} 
+                  size={20} 
+                  color="#ffffff" 
+                />
+              </LinearGradient>
+            </View>
+            <Text style={styles.syncResultText}>
+              {lastSyncResult.success 
+                ? `Sync successful! Received ${lastSyncResult.postsReceived}, sent ${lastSyncResult.postsSent} posts`
+                : `Sync failed: ${lastSyncResult.error}`
+              }
+            </Text>
+          </LinearGradient>
         </View>
       )}
 
       {/* Device List */}
       <View style={styles.deviceListContainer}>
-        <Text style={styles.deviceListTitle}>
-          Discovered Devices ({discoveredDevices.length})
-        </Text>
-        
-        {discoveredDevices.length === 0 && !isScanning && (
-          <View style={styles.emptyState}>
-            <Ionicons name="bluetooth-outline" size={48} color="#ccc" />
-            <Text style={styles.emptyStateText}>No devices found</Text>
-            <Text style={styles.emptyStateSubtext}>Start scanning to discover nearby Donut users</Text>
-          </View>
-        )}
+        <LinearGradient
+          colors={['#ffffff', '#f8f9fa']}
+          style={styles.deviceListGradient}
+        >
+          <Text style={styles.deviceListTitle}>
+            Discovered Devices ({discoveredDevices.length})
+          </Text>
+          
+          {discoveredDevices.length === 0 && !isScanning && (
+            <View style={styles.emptyState}>
+              <View style={styles.emptyStateIcon}>
+                <LinearGradient
+                  colors={['#e0e0e0', '#f5f5f5']}
+                  style={styles.emptyIconGradient}
+                >
+                  <Ionicons name="bluetooth-outline" size={48} color="#999" />
+                </LinearGradient>
+              </View>
+              <Text style={styles.emptyStateText}>No devices found</Text>
+              <Text style={styles.emptyStateSubtext}>Start scanning to discover nearby Donut users</Text>
+            </View>
+          )}
 
-        <FlatList
-          data={discoveredDevices}
-          renderItem={renderDevice}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.deviceList}
-        />
+          <FlatList
+            data={discoveredDevices}
+            renderItem={renderDevice}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.deviceList}
+          />
+        </LinearGradient>
       </View>
     </View>
   );
@@ -201,41 +266,59 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   header: {
-    backgroundColor: '#ffffff',
-    padding: 20,
+    padding: 32,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 12,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    color: '#ffffff',
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 16,
+    color: '#ffffff',
     textAlign: 'center',
+    opacity: 0.9,
+  },
+  scanButtonContainer: {
+    paddingHorizontal: 20,
+    marginTop: 24,
   },
   scanButton: {
-    backgroundColor: '#4CAF50',
+    borderRadius: 28,
+    overflow: 'hidden',
+    height: 64,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  scanButtonGradient: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    margin: 16,
-    borderRadius: 12,
-    gap: 8,
-  },
-  scanningButton: {
-    backgroundColor: '#FF9800',
+    gap: 12,
   },
   scanButtonText: {
     color: '#ffffff',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   scanningContent: {
     flexDirection: 'row',
@@ -254,117 +337,183 @@ const styles = StyleSheet.create({
   scanningText: {
     color: '#ffffff',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  syncResult: {
+  syncResultContainer: {
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 24,
+  },
+  syncResultGradient: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    marginHorizontal: 16,
-    marginBottom: 16,
-    borderRadius: 12,
-    gap: 12,
+    padding: 20,
+    borderRadius: 20,
+    gap: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  successResult: {
-    backgroundColor: '#e8f5e8',
-    borderColor: '#4CAF50',
-    borderWidth: 1,
+  syncResultIcon: {
+    borderRadius: 20,
+    overflow: 'hidden',
   },
-  errorResult: {
-    backgroundColor: '#ffebee',
-    borderColor: '#f44336',
-    borderWidth: 1,
+  syncIconGradient: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
   },
   syncResultText: {
     flex: 1,
     fontSize: 14,
-    color: '#333',
+    color: '#1a1a1a',
+    fontWeight: '600',
   },
   deviceListContainer: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    margin: 16,
-    borderRadius: 12,
-    padding: 16,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  deviceListGradient: {
+    flex: 1,
+    padding: 24,
   },
   deviceListTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 16,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 20,
+    textAlign: 'center',
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 60,
+  },
+  emptyStateIcon: {
+    borderRadius: 40,
+    overflow: 'hidden',
+    marginBottom: 16,
+  },
+  emptyIconGradient: {
+    width: 80,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 40,
   },
   emptyStateText: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: '600',
     color: '#666',
-    marginTop: 12,
-    marginBottom: 4,
+    marginBottom: 8,
   },
   emptyStateSubtext: {
     fontSize: 14,
     color: '#999',
     textAlign: 'center',
+    lineHeight: 20,
   },
   deviceList: {
     flexGrow: 1,
   },
   deviceItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
+    marginBottom: 16,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  connectedDevice: {
-    borderColor: '#4CAF50',
-    backgroundColor: '#e8f5e8',
+  deviceGradient: {
+    padding: 20,
+    borderRadius: 20,
   },
   deviceInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: 12,
+    marginBottom: 16,
+  },
+  deviceIcon: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginRight: 16,
+  },
+  iconGradient: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
   },
   deviceDetails: {
     flex: 1,
   },
   deviceName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 2,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 4,
   },
   deviceRssi: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#666',
+    fontWeight: '500',
   },
   deviceStatus: {
     alignItems: 'flex-end',
   },
-  connectedText: {
-    fontSize: 12,
-    color: '#4CAF50',
-    fontWeight: '600',
+  connectedBadge: {
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-  connectButton: {
-    backgroundColor: '#2196F3',
+  connectedBadgeGradient: {
     paddingHorizontal: 16,
     paddingVertical: 8,
+    borderRadius: 16,
+  },
+  connectedText: {
+    fontSize: 12,
+    color: '#ffffff',
+    fontWeight: '700',
+  },
+  connectButton: {
     borderRadius: 20,
-    minWidth: 80,
+    overflow: 'hidden',
+    minWidth: 100,
+  },
+  connectButtonGradient: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     alignItems: 'center',
+    borderRadius: 20,
   },
   connectButtonText: {
     color: '#ffffff',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });
 

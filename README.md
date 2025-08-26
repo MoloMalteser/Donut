@@ -13,6 +13,13 @@ Donut is a React Native mobile app that enables users to create and share short 
 - **Content Moderation**: Simulated AI content filtering
 - **Auto-expiry**: Posts disappear after 24 hours
 
+### Modern UI & Design
+- **🍩 Beautiful Rounded Design**: Modern card-based interface with smooth curves
+- **🌈 Gradient Accents**: Eye-catching gradients for buttons, badges, and highlights
+- **✨ Smooth Animations**: Fluid transitions and micro-interactions
+- **📱 Responsive Layout**: Optimized for all screen sizes
+- **🎨 Donut Theme**: Consistent branding with donut emojis and colors
+
 ### Nice to Have
 - 🍩 Donut-themed loading animations
 - Hop count display for each post
@@ -65,9 +72,9 @@ Donut is a React Native mobile app that enables users to create and share short 
 - **Sync Screen**: Bluetooth device discovery and synchronization
 
 ### Components
-- `PostCreation`: Create text or photo posts
-- `Post`: Display individual posts with metadata
-- `BluetoothSync`: Handle device discovery and sync
+- `PostCreation`: Create text or photo posts with modern UI
+- `Post`: Display individual posts with gradient borders and metadata
+- `BluetoothSync`: Handle device discovery and sync with beautiful animations
 
 ### Services
 - `PostService`: Post creation, validation, and spam prevention
@@ -89,23 +96,35 @@ Photo posts require camera and photo library permissions, which are requested wh
 
 ## 🏗️ Building for Production
 
-### Android APK
-```bash
-# Build APK
-expo build:android -t apk
+### Automated Release Workflow
 
-# Or use EAS Build
-eas build --platform android --profile preview
+The app includes a complete GitHub Actions workflow that automatically:
+
+1. **Builds both platforms** on every push/PR
+2. **Creates releases** with proper versioning
+3. **Publishes artifacts**:
+   - Android AAB (Play Store)
+   - Android APK (Direct install)
+   - iOS App (Xcode project)
+
+### Manual Build Commands
+
+```bash
+# Using the build script
+./scripts/build.sh android      # Build Android APK
+./scripts/build.sh android-aab  # Build Android AAB
+./scripts/build.sh ios          # Build iOS app
+./scripts/build.sh all          # Build all platforms
+
+# Using EAS CLI directly
+eas build --platform android --profile production
+eas build --platform ios --profile production
 ```
 
-### iOS App
-```bash
-# Build for iOS (requires macOS)
-expo build:ios
+### Build Profiles
 
-# Or use EAS Build
-eas build --platform ios --profile preview
-```
+- **Preview**: Internal distribution, APK for Android
+- **Production**: Store distribution, AAB for Android, Archive for iOS
 
 ## 🧪 Testing
 
@@ -132,6 +151,7 @@ The current implementation simulates Bluetooth functionality for development pur
 - SQLite for local storage
 - React Navigation for screen management
 - Expo managed workflow
+- Modern UI with gradients and rounded design
 
 ### Future Enhancements
 - Real Bluetooth LE implementation
@@ -139,6 +159,12 @@ The current implementation simulates Bluetooth functionality for development pur
 - Post categories and filtering
 - User profiles and customization
 - Offline-first architecture improvements
+
+## 📚 Documentation
+
+- **[Release Workflow Guide](RELEASE_WORKFLOW.md)**: Complete guide to automated releases
+- **[EAS Configuration](eas.json)**: Build profiles and settings
+- **[GitHub Actions](.github/workflows/build.yml)**: Automated CI/CD pipeline
 
 ## 📄 License
 
@@ -158,4 +184,19 @@ For support and questions, please open an issue in the repository.
 
 ---
 
-**Note**: This is an MVP implementation. The Bluetooth functionality is currently simulated for development purposes. Replace the simulation methods with actual Bluetooth APIs before deploying to production.
+**Note**: This is an MVP implementation with modern UI design. The Bluetooth functionality is currently simulated for development purposes. Replace the simulation methods with actual Bluetooth APIs before deploying to production.
+
+## 🎨 UI Design Features
+
+### Modern Components
+- **Gradient Borders**: Beautiful gradient borders around post cards
+- **Rounded Corners**: Consistent 20-24px border radius throughout
+- **Shadow System**: Layered shadows for depth and hierarchy
+- **Color Palette**: Carefully chosen colors with proper contrast
+- **Typography**: Modern font weights and sizing system
+
+### Interactive Elements
+- **Touch Feedback**: Smooth activeOpacity animations
+- **Loading States**: Beautiful loading animations with donut emojis
+- **Status Indicators**: Color-coded status badges and icons
+- **Responsive Buttons**: Adaptive button sizes and states

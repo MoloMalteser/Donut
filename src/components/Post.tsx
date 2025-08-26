@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Post as PostType } from '../types';
 import { formatRelativeTime, formatHopCount, isPostExpired } from '../utils/helpers';
 
@@ -26,130 +27,210 @@ const PostComponent: React.FC<PostProps> = ({ post, onPress }) => {
 
   return (
     <TouchableOpacity
-      style={[styles.container, post.isLocal && styles.localPost]}
+      style={styles.container}
       onPress={onPress}
-      activeOpacity={0.8}
+      activeOpacity={0.9}
     >
-      {/* Post Header */}
-      <View style={styles.header}>
-        <View style={styles.authorInfo}>
-          <Text style={styles.authorId}>
-            {post.isLocal ? 'You' : `Device ${post.authorId.slice(-4)}`}
-          </Text>
-          <Text style={styles.timestamp}>{formatRelativeTime(post.timestamp)}</Text>
-        </View>
-        <View style={styles.hopCount}>
-          <Text style={styles.hopCountText}>{formatHopCount(post.hopCount)}</Text>
-        </View>
-      </View>
-
-      {/* Post Content */}
-      <View style={styles.content}>
-        {post.type === 'text' ? (
-          <Text style={styles.textContent}>{post.content}</Text>
-        ) : (
-          <View style={styles.imageContainer}>
-            <Image
-              source={{ uri: post.imageUri }}
-              style={styles.image}
-              resizeMode="cover"
-            />
-            <Text style={styles.imageCaption}>{post.content}</Text>
+      {/* Modern Card with Gradient Border */}
+      <LinearGradient
+        colors={post.isLocal ? ['#4CAF50', '#66BB6A'] : ['#2196F3', '#42A5F5']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradientBorder}
+      >
+        <View style={[styles.card, post.isLocal && styles.localPost]}>
+          {/* Post Header */}
+          <View style={styles.header}>
+            <View style={styles.authorInfo}>
+              <View style={styles.authorAvatar}>
+                <Text style={styles.authorInitial}>
+                  {post.isLocal ? '🍩' : '📱'}
+                </Text>
+              </View>
+              <View style={styles.authorDetails}>
+                <Text style={styles.authorId}>
+                  {post.isLocal ? 'You' : `Device ${post.authorId.slice(-4)}`}
+                </Text>
+                <Text style={styles.timestamp}>{formatRelativeTime(post.timestamp)}</Text>
+              </View>
+            </View>
+            <View style={styles.hopCount}>
+              <LinearGradient
+                colors={['#FF6B6B', '#FF8E8E']}
+                style={styles.hopCountGradient}
+              >
+                <Text style={styles.hopCountText}>{formatHopCount(post.hopCount)}</Text>
+              </LinearGradient>
+            </View>
           </View>
-        )}
-      </View>
 
-      {/* Post Footer */}
-      <View style={styles.footer}>
-        <View style={styles.postType}>
-          <Text style={styles.postTypeText}>
-            {post.type === 'text' ? '📝' : '📸'} {post.type}
-          </Text>
-        </View>
-        {post.isLocal && (
-          <View style={styles.localBadge}>
-            <Text style={styles.localBadgeText}>Local</Text>
+          {/* Post Content */}
+          <View style={styles.content}>
+            {post.type === 'text' ? (
+              <Text style={styles.textContent}>{post.content}</Text>
+            ) : (
+              <View style={styles.imageContainer}>
+                <View style={styles.imageWrapper}>
+                  <Image
+                    source={{ uri: post.imageUri }}
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
+                </View>
+                <Text style={styles.imageCaption}>{post.content}</Text>
+              </View>
+            )}
           </View>
-        )}
-      </View>
+
+          {/* Post Footer */}
+          <View style={styles.footer}>
+            <View style={styles.postType}>
+              <LinearGradient
+                colors={post.type === 'text' ? ['#9C27B0', '#BA68C8'] : ['#FF9800', '#FFB74D']}
+                style={styles.postTypeGradient}
+              >
+                <Text style={styles.postTypeText}>
+                  {post.type === 'text' ? '📝' : '📸'} {post.type}
+                </Text>
+              </LinearGradient>
+            </View>
+            {post.isLocal && (
+              <View style={styles.localBadge}>
+                <LinearGradient
+                  colors={['#4CAF50', '#66BB6A']}
+                  style={styles.localBadgeGradient}
+                >
+                  <Text style={styles.localBadgeText}>Local</Text>
+                </LinearGradient>
+              </View>
+            )}
+          </View>
+        </View>
+      </LinearGradient>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    marginHorizontal: 20,
+    marginVertical: 12,
+  },
+  gradientBorder: {
+    borderRadius: 24,
+    padding: 2,
+  },
+  card: {
     backgroundColor: '#ffffff',
-    borderRadius: 16,
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 8,
+    borderRadius: 22,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 8,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 12,
   },
   localPost: {
-    borderColor: '#4CAF50',
-    borderWidth: 2,
     backgroundColor: '#f8fff8',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   authorInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  authorAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  authorInitial: {
+    fontSize: 20,
+  },
+  authorDetails: {
     flex: 1,
   },
   authorId: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 2,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 4,
   },
   timestamp: {
-    fontSize: 12,
-    color: '#666',
-  },
-  hopCount: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  hopCountText: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#666',
     fontWeight: '500',
   },
+  hopCount: {
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  hopCountGradient: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  hopCountText: {
+    fontSize: 12,
+    color: '#ffffff',
+    fontWeight: '700',
+    textAlign: 'center',
+  },
   content: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   textContent: {
-    fontSize: 16,
-    color: '#333',
-    lineHeight: 22,
+    fontSize: 17,
+    color: '#1a1a1a',
+    lineHeight: 24,
+    fontWeight: '500',
   },
   imageContainer: {
     alignItems: 'center',
   },
+  imageWrapper: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+  },
   image: {
-    width: width - 64,
-    height: 200,
-    borderRadius: 12,
-    marginBottom: 8,
+    width: width - 80,
+    height: 220,
+    borderRadius: 20,
   },
   imageCaption: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#666',
     textAlign: 'center',
+    fontWeight: '500',
   },
   footer: {
     flexDirection: 'row',
@@ -157,26 +238,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   postType: {
-    backgroundColor: '#e3f2fd',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  postTypeGradient: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
   },
   postTypeText: {
-    fontSize: 12,
-    color: '#1976d2',
-    fontWeight: '500',
+    fontSize: 13,
+    color: '#ffffff',
+    fontWeight: '700',
   },
   localBadge: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  localBadgeGradient: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
   },
   localBadgeText: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#ffffff',
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });
 

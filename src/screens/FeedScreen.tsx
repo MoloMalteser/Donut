@@ -7,12 +7,16 @@ import {
   RefreshControl,
   ActivityIndicator,
   Alert,
+  Dimensions,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import PostComponent from '../components/Post';
 import PostCreation from '../components/PostCreation';
 import PostService from '../services/PostService';
 import { Post } from '../types';
+
+const { width } = Dimensions.get('window');
 
 const FeedScreen: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -58,7 +62,14 @@ const FeedScreen: React.FC = () => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="chatbubble-outline" size={64} color="#ccc" />
+      <View style={styles.emptyStateIcon}>
+        <LinearGradient
+          colors={['#e0e0e0', '#f5f5f5']}
+          style={styles.emptyIconGradient}
+        >
+          <Ionicons name="chatbubble-outline" size={64} color="#999" />
+        </LinearGradient>
+      </View>
       <Text style={styles.emptyStateTitle}>No posts yet</Text>
       <Text style={styles.emptyStateSubtitle}>
         Create your first post or wait for nearby devices to share content!
@@ -67,18 +78,40 @@ const FeedScreen: React.FC = () => {
   );
 
   const renderHeader = () => (
-    <View style={styles.header}>
-      <Text style={styles.headerTitle}>🍩 Donut Feed</Text>
-      <Text style={styles.headerSubtitle}>
-        {hasPosts ? `${posts.length} posts` : 'Share and discover posts offline'}
-      </Text>
-    </View>
+    <LinearGradient
+      colors={['#4CAF50', '#66BB6A']}
+      style={styles.header}
+    >
+      <View style={styles.headerContent}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.headerTitle}>🍩 Donut Feed</Text>
+          <Text style={styles.headerSubtitle}>
+            {hasPosts ? `${posts.length} posts` : 'Share and discover posts offline'}
+          </Text>
+        </View>
+        <View style={styles.headerIcon}>
+          <LinearGradient
+            colors={['#ffffff', '#f0f0f0']}
+            style={styles.iconGradient}
+          >
+            <Text style={styles.iconText}>🍩</Text>
+          </LinearGradient>
+        </View>
+      </View>
+    </LinearGradient>
   );
 
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+        <View style={styles.loadingIcon}>
+          <LinearGradient
+            colors={['#4CAF50', '#66BB6A']}
+            style={styles.loadingIconGradient}
+          >
+            <Text style={styles.loadingEmoji}>🍩</Text>
+          </LinearGradient>
+        </View>
         <Text style={styles.loadingText}>Loading posts...</Text>
       </View>
     );
@@ -103,6 +136,7 @@ const FeedScreen: React.FC = () => {
             onRefresh={handleRefresh}
             colors={['#4CAF50']}
             tintColor="#4CAF50"
+            progressBackgroundColor="#ffffff"
           />
         }
         showsVerticalScrollIndicator={false}
@@ -123,51 +157,140 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f8f9fa',
   },
+  loadingIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    overflow: 'hidden',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  loadingIconGradient: {
+    width: 80,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 40,
+  },
+  loadingEmoji: {
+    fontSize: 40,
+  },
   loadingText: {
-    marginTop: 16,
-    fontSize: 16,
+    fontSize: 18,
     color: '#666',
+    fontWeight: '600',
   },
   contentContainer: {
     flexGrow: 1,
   },
   header: {
-    backgroundColor: '#ffffff',
-    padding: 20,
+    paddingTop: 60,
+    paddingBottom: 32,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  headerContent: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    justifyContent: 'space-between',
+  },
+  titleContainer: {
+    flex: 1,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    color: '#ffffff',
+    marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    color: '#ffffff',
+    opacity: 0.9,
+    lineHeight: 22,
+  },
+  headerIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  iconGradient: {
+    width: 64,
+    height: 64,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 32,
+  },
+  iconText: {
+    fontSize: 32,
   },
   emptyState: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 60,
+    paddingVertical: 80,
     paddingHorizontal: 40,
   },
+  emptyStateIcon: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    overflow: 'hidden',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  emptyIconGradient: {
+    width: 120,
+    height: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 60,
+  },
   emptyStateTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginTop: 16,
-    marginBottom: 8,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 12,
+    textAlign: 'center',
   },
   emptyStateSubtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
+    fontWeight: '500',
   },
 });
 

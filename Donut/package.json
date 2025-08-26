@@ -27,7 +27,8 @@
     "react-native-screens": "^4.15.2",
     "react-dom": "19.0.0",
     "react-native-web": "^0.20.0",
-    "@expo/metro-runtime": "~5.0.4"
+    "@expo/metro-runtime": "~5.0.4",
+    "expo-linear-gradient": "~14.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
