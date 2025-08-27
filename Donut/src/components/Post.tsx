@@ -11,7 +11,7 @@ interface PostProps {
 const { width } = Dimensions.get('window');
 
 const Post: React.FC<PostProps> = ({ post }) => {
-  const authorInitial = post.authorId.charAt(0).toUpperCase();
+  const authorInitial = (post.authorId || 'U').charAt(0).toUpperCase();
   const authorAvatar = `https://ui-avatars.com/api/?name=${authorInitial}&background=random&color=fff&size=40`;
 
   return (
@@ -32,7 +32,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
             colors={['#ff6b6b', '#ee5a24']}
             style={styles.badge}
           >
-            <Text style={styles.badgeText}>{post.type}</Text>
+            {!!post.type && <Text style={styles.badgeText}>{post.type}</Text>}
           </LinearGradient>
           <LinearGradient
             colors={['#4ecdc4', '#44a08d']}
