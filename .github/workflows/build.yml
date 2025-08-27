@@ -39,11 +39,6 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Regenerate Gradle wrapper
-        run: |
-          cd android
-          gradle wrapper --gradle-version 8.0.1
-
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
@@ -57,9 +52,14 @@ jobs:
             echo "gradle-wrapper.jar already present"
           fi
 
+      - name: Print Gradle wrapper version
+        run: |
+          cd android
+          ./gradlew --version
+
       - name: Build APK
         run: |
-          # Set environment to force use of wrapper
+          # Set environment to force use of wrapper and disable daemon
           export GRADLE_OPTS="-Dorg.gradle.daemon=false"
           
           # Generate the APK using Gradle wrapper with no daemon
