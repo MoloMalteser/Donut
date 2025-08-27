@@ -1,11 +1,15 @@
 export interface Post {
   id: string;
   content: string;
-  imageUri?: string;
+  imageUri?: string | null;
   timestamp: number;
   hopCount: number;
-  isExpired: boolean;
-  authorId?: string;
+  authorId: string;
+  // legacy fields used by storage/rendering
+  type?: 'text' | 'photo';
+  isLocal?: boolean;
+  // optional app-side status field
+  isExpired?: boolean;
 }
 
 export interface BluetoothDevice {
@@ -13,12 +17,15 @@ export interface BluetoothDevice {
   name: string;
   address: string;
   isConnected: boolean;
+  rssi?: number;
 }
 
 export interface SyncResult {
   success: boolean;
   message: string;
   postsSynced?: number;
+  postsReceived?: number;
+  postsSent?: number;
   error?: string;
 }
 

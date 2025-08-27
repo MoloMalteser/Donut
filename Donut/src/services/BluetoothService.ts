@@ -4,6 +4,8 @@ import RNBluetoothClassic from 'react-native-bluetooth-classic';
 class BluetoothService {
   private isEnabled: boolean = false;
   private connectedDevices: BluetoothDevice[] = [];
+  private onDeviceDiscovered?: (device: BluetoothDevice) => void;
+  private onSyncComplete?: (result: SyncResult) => void;
 
   async initialize(): Promise<boolean> {
     try {
@@ -34,12 +36,46 @@ class BluetoothService {
         id: device.id,
         name: device.name,
         address: device.address,
-        isConnected: false
+        isConnected: false,
+        rssi: (device as any).rssi,
       }));
     } catch (error) {
       console.error('Failed to get available devices:', error);
       return [];
     }
+  }
+
+  setOnDeviceDiscovered(callback: (device: BluetoothDevice) => void) {
+    this.onDeviceDiscovered = callback;
+  }
+
+  setOnSyncComplete(callback: (result: SyncResult) => void) {
+    this.onSyncComplete = callback;
+  }
+
+  async startScan(): Promise<void> {
+    // Simulated scan using bonded devices as discoveries
+    const devices = await this.getAvailableDevices();
+    devices.forEach(d => this.onDeviceDiscovered?.(d));
+  }
+
+  stopScan(): void {
+    // No-op for now; placeholder for real scan stop
+  }
+
+  async syncWithDevice(deviceId: string): Promise<void> {
+    // Simulated sync that triggers callback
+    const result: SyncResult = {
+      success: true,
+      message: 'Sync completed',
+      postsReceived: 0,
+      postsSent: 0,
+    };
+    this.onSyncComplete?.(result);
+  }
+
+  async cleanupExpiredPosts(): Promise<void> {
+    // Placeholder; in real impl we'd invoke DatabaseService.deleteExpiredPosts()
   }
 
   async connectToDevice(device: BluetoothDevice): Promise<boolean> {

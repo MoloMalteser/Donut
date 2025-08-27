@@ -30,7 +30,7 @@ class DatabaseService {
       CREATE TABLE IF NOT EXISTS posts (
         id TEXT PRIMARY KEY,
         content TEXT NOT NULL,
-        type TEXT NOT NULL,
+        type TEXT,
         imageUri TEXT,
         timestamp INTEGER NOT NULL,
         authorId TEXT NOT NULL,
@@ -60,8 +60,8 @@ class DatabaseService {
       await this.database.executeSql(insertQuery, [
         post.id,
         post.content,
-        post.type,
-        post.imageUri || null,
+        post.type ?? null,
+        (post.imageUri ?? null),
         post.timestamp,
         post.authorId,
         post.hopCount,
