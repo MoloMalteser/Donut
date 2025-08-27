@@ -42,15 +42,18 @@ jobs:
       - name: Regenerate Gradle wrapper
         run: |
           cd android
-          gradle wrapper --gradle-version 8.3
+          gradle wrapper --gradle-version 8.0.1
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
       - name: Build APK
         run: |
-          # Generate the APK using Gradle wrapper (not system Gradle)
-          cd android && ./gradlew assembleRelease
+          # Set environment to force use of wrapper
+          export GRADLE_OPTS="-Dorg.gradle.daemon=false"
+          
+          # Generate the APK using Gradle wrapper with no daemon
+          cd android && ./gradlew --no-daemon assembleRelease
           
           # Copy the generated APK
           cp app/build/outputs/apk/release/app-release.apk ../donut-app.apk
