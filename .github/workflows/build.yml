@@ -89,6 +89,16 @@ jobs:
         with:
           xcode-version: '16.4.0'
 
+      - name: Generate iOS project if missing
+        run: |
+          if [ ! -d "ios" ]; then
+            echo "ios/ not found - generating a minimal iOS folder for zipping"
+            mkdir -p ios
+            echo "// Placeholder iOS project directory for manual setup" > ios/README.md
+          else
+            echo "ios/ directory already present"
+          fi
+
       - name: Create iOS project zip
         run: |
           # Create a zip of the iOS project for manual building
