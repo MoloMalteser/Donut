@@ -39,13 +39,18 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Regenerate Gradle wrapper
+        run: |
+          cd android
+          gradle wrapper --gradle-version 8.3
+
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
       - name: Build APK
         run: |
-          # Generate the APK using Gradle directly
-          cd android && ./gradlew assembleRelease
+          # Generate the APK using system Gradle
+          cd android && gradle assembleRelease
           
           # Copy the generated APK
           cp app/build/outputs/apk/release/app-release.apk ../donut-app.apk
