@@ -1,16 +1,22 @@
-import { launchImageLibrary, launchCamera, ImagePickerResponse, Image } from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera, ImagePickerResponse } from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Post } from '../types';
 import DatabaseService from './DatabaseService';
-import { generateId, validatePostContent } from '../utils/helpers';
+import { validatePostContent } from '../utils/helpers';
+
+// Helper function to generate unique IDs
+const generateId = (): string => {
+  return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+};
 
 class PostService {
   private readonly SPAM_INTERVAL = 2 * 60 * 1000; // 2 minutes in milliseconds
 
   async createTextPost(content: string): Promise<Post> {
     // Validate content
-    if (!validatePostContent(content)) {
-      throw new Error('Invalid post content');
+    const validation = validatePostContent(content);
+    if (!validation.isValid) {
+      throw new Error(validation.error || 'Invalid post content');
     }
 
     // Check spam prevention
@@ -24,12 +30,10 @@ class PostService {
     const post: Post = {
       id: generateId(),
       content,
-      type: 'text',
-      imageUri: null,
       timestamp: Date.now(),
       authorId: await this.getAuthorId(),
       hopCount: 0,
-      isLocal: true,
+      isExpired: false,
     };
 
     await DatabaseService.savePost(post);
@@ -70,12 +74,11 @@ class PostService {
       const post: Post = {
         id: generateId(),
         content: '📸 Photo post',
-        type: 'photo',
         imageUri: asset.uri,
         timestamp: Date.now(),
         authorId: await this.getAuthorId(),
         hopCount: 0,
-        isLocal: true,
+        isExpired: false,
       };
 
       await DatabaseService.savePost(post);
@@ -121,12 +124,11 @@ class PostService {
       const post: Post = {
         id: generateId(),
         content: '📸 Photo post',
-        type: 'photo',
         imageUri: asset.uri,
         timestamp: Date.now(),
         authorId: await this.getAuthorId(),
         hopCount: 0,
-        isLocal: true,
+        isExpired: false,
       };
 
       await DatabaseService.savePost(post);
