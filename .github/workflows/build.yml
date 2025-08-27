@@ -49,8 +49,8 @@ jobs:
 
       - name: Build APK
         run: |
-          # Generate the APK using system Gradle
-          cd android && gradle assembleRelease
+          # Generate the APK using Gradle wrapper (not system Gradle)
+          cd android && ./gradlew assembleRelease
           
           # Copy the generated APK
           cp app/build/outputs/apk/release/app-release.apk ../donut-app.apk
