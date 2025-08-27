@@ -47,6 +47,16 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
+      - name: Ensure Gradle wrapper JAR (8.0.1)
+        run: |
+          mkdir -p android/gradle/wrapper
+          if [ ! -f android/gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "Downloading gradle-wrapper.jar for 8.0.1"
+            curl -L -o android/gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.0.1/gradle/wrapper/gradle-wrapper.jar
+          else
+            echo "gradle-wrapper.jar already present"
+          fi
+
       - name: Build APK
         run: |
           # Set environment to force use of wrapper
